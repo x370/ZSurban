@@ -355,8 +355,8 @@ function CheckoutContent() {
                   </div>
                 </div>
 
-                {/* JazzCash Option */}
-                <div 
+                {/* JazzCash Option (Temporarily Disabled) */}
+                {/* <div 
                   onClick={() => setPaymentMethod('jazzcash')}
                   className={`flex items-center justify-between border-2 rounded-2xl p-4 transition-all duration-200 cursor-pointer ${
                     paymentMethod === 'jazzcash'
@@ -385,7 +385,7 @@ function CheckoutContent() {
                       <div className="w-2.5 h-2.5 rounded-full bg-[#e11d48]"></div>
                     )}
                   </div>
-                </div>
+                </div> */}
 
               </div>
             </div>
