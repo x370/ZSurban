@@ -4,6 +4,8 @@ import { CircularProgress, Alert } from '@mui/material';
 import {
   Search as SearchIcon,
   People as PeopleIcon,
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
 } from '@mui/icons-material';
 import Button from './Button';
 import Input from './Input';
@@ -13,6 +15,8 @@ export default function UsersPanel() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 10;
 
   const loadUsers = async () => {
     try {
@@ -40,6 +44,12 @@ export default function UsersPanel() {
       user._id.toLowerCase().includes(query)
     );
   });
+
+  // Reset page on search change
+  useEffect(() => { setPage(1); }, [searchQuery]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / PAGE_SIZE));
+  const pagedUsers = filteredUsers.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const getRoleClass = (role: string) => {
     if (role === 'admin') {
@@ -108,7 +118,7 @@ export default function UsersPanel() {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-50 text-xs font-semibold text-zinc-800">
-              {filteredUsers.map((user) => (
+              {pagedUsers.map((user) => (
                 <tr key={user._id} className="hover:bg-zinc-50/30 transition-colors">
                   <td className="py-4 pr-2 font-mono text-zinc-400 font-bold">
                     #{user._id.substring(user._id.length - 6).toUpperCase()}
@@ -135,6 +145,43 @@ export default function UsersPanel() {
           </table>
         )}
       </div>
+
+      {/* Pagination Footer */}
+      {filteredUsers.length > PAGE_SIZE && (
+        <div className="flex items-center justify-between pt-3 border-t border-zinc-100">
+          <span className="text-[10px] font-bold text-zinc-400">
+            Page <span className="text-zinc-700">{page}</span> of <span className="text-zinc-700">{totalPages}</span>
+            {' '}· <span className="text-zinc-700">{filteredUsers.length}</span> users
+          </span>
+          <div className="flex items-center gap-1">
+            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+              className="w-7 h-7 rounded-lg border border-zinc-200 flex items-center justify-center text-zinc-500 hover:bg-zinc-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer">
+              <ChevronLeftIcon sx={{ fontSize: 16 }} />
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter(n => n === 1 || n === totalPages || Math.abs(n - page) <= 1)
+              .reduce<(number | '...')[]>((acc, n, idx, arr) => {
+                if (idx > 0 && typeof arr[idx - 1] === 'number' && (n as number) - (arr[idx - 1] as number) > 1) acc.push('...');
+                acc.push(n);
+                return acc;
+              }, [])
+              .map((n, i) =>
+                n === '...' ? (
+                  <span key={`dots-${i}`} className="w-7 h-7 flex items-center justify-center text-[10px] text-zinc-400">…</span>
+                ) : (
+                  <button key={n} onClick={() => setPage(n as number)}
+                    className={`w-7 h-7 rounded-lg text-[10px] font-black transition-colors cursor-pointer ${
+                      page === n ? 'bg-zinc-900 text-white' : 'border border-zinc-200 text-zinc-500 hover:bg-zinc-100'
+                    }`}>{n}</button>
+                )
+              )}
+            <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+              className="w-7 h-7 rounded-lg border border-zinc-200 flex items-center justify-center text-zinc-500 hover:bg-zinc-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer">
+              <ChevronRightIcon sx={{ fontSize: 16 }} />
+            </button>
+          </div>
+        </div>
+      )}
 
     </div>
   );

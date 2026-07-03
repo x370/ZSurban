@@ -13,6 +13,14 @@ export interface ApiProduct {
   isActive: boolean;
   createdAt?: string;
   updatedAt?: string;
+  reviews?: ApiReview[];
+}
+
+export interface ApiReview {
+  name: string;
+  comment: string;
+  rating: number;
+  createdAt: string;
 }
 
 /**
@@ -38,6 +46,31 @@ export async function fetchProducts(category?: string, wearType?: string): Promi
 export async function fetchProductById(id: string): Promise<ApiProduct> {
   const res = await fetch(`${getApiBaseUrl()}/products/${id}`);
   if (!res.ok) throw new Error('Product not found');
+  return res.json();
+}
+
+/**
+ * Public: Fetch all reviews for a product.
+ */
+export async function fetchProductReviews(productId: string): Promise<ApiReview[]> {
+  const res = await fetch(`${getApiBaseUrl()}/products/${productId}/reviews`);
+  if (!res.ok) throw new Error('Failed to fetch reviews');
+  return res.json();
+}
+
+/**
+ * Public: Submit a review for a product.
+ */
+export async function submitReview(
+  productId: string,
+  data: { name: string; comment: string; rating: number },
+): Promise<ApiReview[]> {
+  const res = await fetch(`${getApiBaseUrl()}/products/${productId}/reviews`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to submit review');
   return res.json();
 }
 

@@ -1,9 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Product, ProductDocument } from './schemas/product.schema';
+import { Product, ProductDocument, Review } from './schemas/product.schema';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { CreateReviewDto } from './dto/create-review.dto';
 
 @Injectable()
 export class ProductsService {
@@ -58,5 +59,28 @@ export class ProductsService {
       throw new NotFoundException(`Product with id "${id}" not found`);
     }
     return { deleted: true };
+  }
+
+  async getReviews(productId: string): Promise<Review[]> {
+    const product = await this.productModel.findById(productId).exec();
+    if (!product) {
+      throw new NotFoundException(`Product with id "${productId}" not found`);
+    }
+    return product.reviews;
+  }
+
+  async addReview(productId: string, dto: CreateReviewDto): Promise<Review[]> {
+    const product = await this.productModel.findById(productId).exec();
+    if (!product) {
+      throw new NotFoundException(`Product with id "${productId}" not found`);
+    }
+    product.reviews.push({
+      name: dto.name,
+      comment: dto.comment,
+      rating: dto.rating,
+      createdAt: new Date(),
+    } as Review);
+    await product.save();
+    return product.reviews;
   }
 }

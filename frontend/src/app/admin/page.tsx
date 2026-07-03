@@ -176,7 +176,7 @@ function AdminHomeContent() {
 
   // Dashboard view
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen bg-slate-50/50 text-zinc-900 font-sans">
+    <div className="flex flex-col lg:flex-row h-screen overflow-hidden bg-slate-50/50 text-zinc-900 font-sans">
 
       {/* Mobile Top Header (only visible below lg screen width) */}
       <header className="flex lg:hidden items-center justify-between bg-white border-b border-zinc-200 px-4 py-3 sticky top-0 z-40">
@@ -310,7 +310,7 @@ function AdminHomeContent() {
       )}
 
       {/* Desktop Left Sidebar (hidden below lg) */}
-      <aside className="hidden lg:flex w-64 border-r border-zinc-200 bg-white flex-col justify-between p-6 shrink-0">
+      <aside className="hidden lg:flex w-64 border-r border-zinc-200 bg-white flex-col justify-between p-6 shrink-0 sticky top-0 h-screen overflow-y-auto">
         <div className="flex flex-col gap-8">
           <div className="flex items-center gap-3">
             <div className="bg-zinc-900 text-white p-2.5 rounded-xl flex items-center justify-center shadow-md shadow-zinc-900/10">
@@ -391,7 +391,7 @@ function AdminHomeContent() {
       </aside>
 
       {/* Main workspace */}
-      <main className="flex-1 min-w-0 p-4 sm:p-8 flex flex-col gap-6 text-left">
+      <main className="flex-1 min-w-0 p-4 sm:p-8 flex flex-col gap-6 text-left overflow-y-auto h-screen">
         
         {/* Top greeting bar (hidden below lg since mobile header displays app logo/bell) */}
         <header className="hidden lg:flex items-center justify-between border-b border-zinc-200/40 pb-5">

@@ -2,31 +2,18 @@
 
 import React from 'react';
 import {
-  Star as StarIcon,
-  StarBorder as StarBorderIcon,
-  StarHalf as StarHalfIcon,
+  ShoppingCartOutlined as CartIcon,
   Image as ImageIcon,
 } from '@mui/icons-material';
 import Link from 'next/link';
-import Button from './Button';
 
-/**
- * Unified Product interface used across the user frontend.
- * Supports both legacy mock products (id + image) and
- * API products from backend (_id + imageUrls[]).
- */
 export interface Product {
-  // API product fields (from backend)
   _id?: string;
   imageUrls?: string[];
   stock?: number;
-
-  // Legacy / mock product fields (kept for backward compatibility)
   id?: number;
   image?: string;
   rating?: number;
-
-  // Common fields
   title: string;
   category: string;
   price: number;
@@ -39,98 +26,80 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, onAddToCart }: ProductCardProps) {
-  // Resolve primary image: prefer imageUrls[0] from API, fallback to legacy image
   const primaryImage = product.imageUrls?.[0] ?? product.image;
-
-  // Resolve link ID: prefer MongoDB _id, fallback to numeric id
   const productId = product._id ?? String(product.id);
-
-  const rating = product.rating ?? 0;
-
-  const renderStars = (r: number) => {
-    const stars = [];
-    const floor = Math.floor(r);
-    const hasHalf = r - floor >= 0.3 && r - floor <= 0.7;
-    for (let i = 1; i <= 5; i++) {
-      if (i <= floor) {
-        stars.push(<StarIcon key={i} className="text-amber-400" sx={{ fontSize: 16 }} />);
-      } else if (i === floor + 1 && hasHalf) {
-        stars.push(<StarHalfIcon key={i} className="text-amber-400" sx={{ fontSize: 16 }} />);
-      } else {
-        stars.push(<StarBorderIcon key={i} className="text-zinc-300" sx={{ fontSize: 16 }} />);
-      }
-    }
-    return stars;
-  };
+  const isOutOfStock = typeof product.stock === 'number' && product.stock === 0;
 
   return (
-    <div className="bg-white border border-zinc-200/50 hover:border-zinc-300/80 rounded-3xl p-4 flex flex-col gap-4 shadow-sm hover:shadow-lg transition-all duration-300 group hover:-translate-y-1">
-      <Link href={`/shop/${productId}`} className="cursor-pointer block flex flex-col gap-4 flex-1">
-        {/* Product Image — shows imageUrls[0] (primary thumbnail) */}
-        <div className="aspect-[4/3] w-full rounded-2xl overflow-hidden bg-zinc-50 relative">
-          {primaryImage ? (
-            <img
-              src={primaryImage}
-              alt={product.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = 'none';
-              }}
-            />
-          ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-zinc-300">
-              <ImageIcon sx={{ fontSize: 36 }} />
-              <span className="text-[10px] font-semibold">No image</span>
-            </div>
-          )}
+    <div className="bg-white border border-zinc-100 rounded-xl overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 group hover:-translate-y-0.5 flex flex-col">
 
-          {/* Multi-image indicator badge */}
-          {(product.imageUrls?.length ?? 0) > 1 && (
-            <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-sm text-white text-[9px] font-black px-2 py-0.5 rounded-full">
-              +{(product.imageUrls?.length ?? 1) - 1} more
-            </div>
-          )}
-        </div>
-
-        {/* Title & Price Row */}
-        <div className="flex items-start justify-between gap-2">
-          <div className="text-left flex-1 min-w-0">
-            <h3 className="font-bold text-zinc-900 text-sm truncate group-hover:text-zinc-950 transition-colors">
-              {product.title}
-            </h3>
-            <p className="text-zinc-400 text-2xs mt-0.5 font-medium line-clamp-1">{product.description}</p>
+      {/* Image */}
+      <Link href={`/shop/${productId}`} className="block relative overflow-hidden bg-zinc-50" style={{ aspectRatio: '1/1' }}>
+        {primaryImage ? (
+          <img
+            src={primaryImage}
+            alt={product.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+          />
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center gap-1 text-zinc-300">
+            <ImageIcon sx={{ fontSize: 24 }} />
+            <span className="text-[8px] font-semibold">No image</span>
           </div>
-          <span className="inline-block shrink-0 bg-zinc-100 text-zinc-800 text-[11px] font-extrabold px-2.5 py-1 rounded-full">
-            PKR {product.price.toLocaleString()}
-          </span>
-        </div>
+        )}
+
+        {/* Category pill */}
+        <span className="absolute top-2 left-2 text-[8px] font-black uppercase tracking-wide bg-white/90 backdrop-blur-sm text-zinc-600 px-1.5 py-0.5 rounded-full shadow-xs border border-zinc-100/80">
+          {product.category}
+        </span>
+
+        {/* Out of stock overlay */}
+        {isOutOfStock && (
+          <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] flex items-center justify-center">
+            <span className="text-[9px] font-black uppercase text-red-500 bg-white px-2.5 py-0.5 rounded-full border border-red-100 shadow-sm">
+              Out of Stock
+            </span>
+          </div>
+        )}
       </Link>
 
-      {/* Rating Stars (shown only for products with ratings) */}
-      {rating > 0 && (
-        <div className="flex items-center gap-1 text-left">
-          <div className="flex">{renderStars(rating)}</div>
-          <span className="text-[10px] text-zinc-500 font-semibold ml-1">{rating}</span>
+      {/* Content */}
+      <div className="p-2.5 flex flex-col gap-2 flex-1">
+
+        {/* Title */}
+        <Link href={`/shop/${productId}`} className="block flex-1">
+          <h3 className="font-bold text-zinc-900 text-[11px] leading-snug line-clamp-2 group-hover:text-zinc-600 transition-colors">
+            {product.title}
+          </h3>
+        </Link>
+
+        {/* Price + Stock row */}
+        <div className="flex items-center justify-between gap-1">
+          <span className="text-[12px] font-black text-zinc-950">
+            PKR {product.price.toLocaleString()}
+          </span>
+          {typeof product.stock === 'number' && product.stock > 0 && (
+            <span className="text-[7px] font-black text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full border border-emerald-100 uppercase tracking-wide">
+              In stock
+            </span>
+          )}
         </div>
-      )}
 
-      {/* Stock info */}
-      {typeof product.stock === 'number' && (
-        <p className={`text-[10px] font-bold ${product.stock === 0 ? 'text-red-400' : 'text-zinc-400'}`}>
-          {product.stock === 0 ? 'Out of stock' : `${product.stock} in stock`}
-        </p>
-      )}
-
-      {/* Add To Cart Button */}
-      <Button
-        variant="secondary"
-        size="md"
-        fullWidth
-        onClick={onAddToCart}
-        className={product.stock === 0 ? 'opacity-50 cursor-not-allowed' : ''}
-      >
-        {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
-      </Button>
+        {/* Add to Cart Button */}
+        <button
+          onClick={onAddToCart}
+          disabled={isOutOfStock}
+          className={`w-full flex items-center justify-center gap-1 py-1.5 rounded-lg text-[10px] font-extrabold transition-all duration-200
+            ${isOutOfStock
+              ? 'bg-zinc-100 text-zinc-400 cursor-not-allowed'
+              : 'bg-zinc-950 hover:bg-zinc-800 text-white active:scale-95 cursor-pointer'
+            }`}
+        >
+          <CartIcon sx={{ fontSize: 11 }} />
+          {isOutOfStock ? 'Sold Out' : 'Add to Cart'}
+        </button>
+      </div>
     </div>
   );
 }

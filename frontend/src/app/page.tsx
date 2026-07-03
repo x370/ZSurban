@@ -80,6 +80,13 @@ function HomeContent() {
     product.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Category and Featured lists
+  const isSearching = searchQuery.trim() !== '';
+  const featuredProducts = displayProducts.slice(0, 8); // show up to 8 featured products
+  const gentsProducts = displayProducts.filter(p => p.category === 'Jeans Pants' || p.category === 'Jeans Shirts');
+  const ladiesProducts = displayProducts.filter(p => p.category === 'Ladies Dress');
+  const kidsProducts = displayProducts.filter(p => p.category === 'Kids');
+
 
 
   return (
@@ -163,35 +170,159 @@ function HomeContent() {
           </div>
         </section>
 
-        {/* Featured Products Section */}
-        <section className="flex flex-col gap-4">
-          <div className="flex items-end justify-between">
-            <div className="text-left">
-              <h2 className="text-xl md:text-2xl font-bold text-zinc-900 tracking-tight">Featured Products</h2>
-              <p className="text-xs md:text-sm text-zinc-500 mt-0.5">Handpicked items with great value and ratings.</p>
+        {/* Products Section */}
+        {isSearching ? (
+          <section className="flex flex-col gap-4">
+            <div className="flex items-end justify-between">
+              <div className="text-left">
+                <h2 className="text-xl md:text-2xl font-bold text-zinc-900 tracking-tight">Search Results</h2>
+                <p className="text-xs md:text-sm text-zinc-500 mt-0.5">Found {filteredProducts.length} items matching your query.</p>
+              </div>
             </div>
-            <Button variant="ghost" className="text-xs text-zinc-500 hover:text-zinc-900 px-3 py-1.5 font-bold">
-              Shop all products
-            </Button>
-          </div>
 
-          {/* Grid of Products */}
-          {filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {filteredProducts.map((product) => (
-                <ProductCard 
-                  key={('_id' in product ? product._id : undefined) ?? ('id' in product ? String((product as any).id) : Math.random().toString())} 
-                  product={product} 
-                  onAddToCart={() => handleAddToCart(product)} 
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="bg-white border border-zinc-200/40 rounded-2xl p-12 text-center text-zinc-500">
-              No products found matching "{searchQuery}"
-            </div>
-          )}
-        </section>
+            {filteredProducts.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                {filteredProducts.map((product) => (
+                  <ProductCard 
+                    key={('_id' in product ? product._id : undefined) ?? ('id' in product ? String((product as any).id) : Math.random().toString())} 
+                    product={product} 
+                    onAddToCart={() => handleAddToCart(product)} 
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white border border-zinc-200/40 rounded-2xl p-12 text-center text-zinc-500">
+                No products found matching "{searchQuery}"
+              </div>
+            )}
+          </section>
+        ) : (
+          <>
+            {/* Featured Products Section */}
+            <section className="flex flex-col gap-4">
+              <div className="flex items-end justify-between">
+                <div className="text-left">
+                  <h2 className="text-xl md:text-2xl font-bold text-zinc-900 tracking-tight">Featured Products</h2>
+                  <p className="text-xs md:text-sm text-zinc-500 mt-0.5">Handpicked items with great value and ratings.</p>
+                </div>
+                <Link href="/shop">
+                  <Button component="span" variant="ghost" className="text-xs text-zinc-500 hover:text-zinc-900 px-3 py-1.5 font-bold">
+                    Shop all products
+                  </Button>
+                </Link>
+              </div>
+
+              {featuredProducts.length > 0 ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                  {featuredProducts.slice(0, 4).map((product) => (
+                    <ProductCard 
+                      key={('_id' in product ? product._id : undefined) ?? ('id' in product ? String((product as any).id) : Math.random().toString())} 
+                      product={product} 
+                      onAddToCart={() => handleAddToCart(product)} 
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-white border border-zinc-200/40 rounded-2xl p-12 text-center text-zinc-500">
+                  No products available
+                </div>
+              )}
+            </section>
+
+            {/* Gents Collection Section */}
+            <section className="flex flex-col gap-4 mt-4">
+              <div className="flex items-end justify-between">
+                <div className="text-left">
+                  <h2 className="text-xl md:text-2xl font-bold text-zinc-900 tracking-tight">Gents Collection</h2>
+                  <p className="text-xs md:text-sm text-zinc-500 mt-0.5">Premium quality denim shirts and pants for men.</p>
+                </div>
+                <Link href="/categories/Jeans Pants">
+                  <Button component="span" variant="ghost" className="text-xs text-[#00b884] hover:text-[#00a374] px-3 py-1.5 font-black uppercase tracking-wider">
+                    See All
+                  </Button>
+                </Link>
+              </div>
+
+              {gentsProducts.length > 0 ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                  {gentsProducts.slice(0, 4).map((product) => (
+                    <ProductCard 
+                      key={('_id' in product ? product._id : undefined) ?? ('id' in product ? String((product as any).id) : Math.random().toString())} 
+                      product={product} 
+                      onAddToCart={() => handleAddToCart(product)} 
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-white border border-zinc-200/40 rounded-2xl p-12 text-center text-zinc-500">
+                  No gents products available
+                </div>
+              )}
+            </section>
+
+            {/* Ladies Collection Section */}
+            <section className="flex flex-col gap-4 mt-4">
+              <div className="flex items-end justify-between">
+                <div className="text-left">
+                  <h2 className="text-xl md:text-2xl font-bold text-zinc-900 tracking-tight">Ladies Collection</h2>
+                  <p className="text-xs md:text-sm text-zinc-500 mt-0.5">Stunning eastern and western wear dresses.</p>
+                </div>
+                <Link href="/categories/Ladies Dress">
+                  <Button component="span" variant="ghost" className="text-xs text-[#00b884] hover:text-[#00a374] px-3 py-1.5 font-black uppercase tracking-wider">
+                    See All
+                  </Button>
+                </Link>
+              </div>
+
+              {ladiesProducts.length > 0 ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                  {ladiesProducts.slice(0, 4).map((product) => (
+                    <ProductCard 
+                      key={('_id' in product ? product._id : undefined) ?? ('id' in product ? String((product as any).id) : Math.random().toString())} 
+                      product={product} 
+                      onAddToCart={() => handleAddToCart(product)} 
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-white border border-zinc-200/40 rounded-2xl p-12 text-center text-zinc-500">
+                  No ladies products available
+                </div>
+              )}
+            </section>
+
+            {/* Kids Collection Section */}
+            <section className="flex flex-col gap-4 mt-4">
+              <div className="flex items-end justify-between">
+                <div className="text-left">
+                  <h2 className="text-xl md:text-2xl font-bold text-zinc-900 tracking-tight">Kids & Children</h2>
+                  <p className="text-xs md:text-sm text-zinc-500 mt-0.5">Cute and comfortable garments for children.</p>
+                </div>
+                <Link href="/categories/Kids">
+                  <Button component="span" variant="ghost" className="text-xs text-[#00b884] hover:text-[#00a374] px-3 py-1.5 font-black uppercase tracking-wider">
+                    See All
+                  </Button>
+                </Link>
+              </div>
+
+              {kidsProducts.length > 0 ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                  {kidsProducts.slice(0, 4).map((product) => (
+                    <ProductCard 
+                      key={('_id' in product ? product._id : undefined) ?? ('id' in product ? String((product as any).id) : Math.random().toString())} 
+                      product={product} 
+                      onAddToCart={() => handleAddToCart(product)} 
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-white border border-zinc-200/40 rounded-2xl p-12 text-center text-zinc-500">
+                  No kids products available
+                </div>
+              )}
+            </section>
+          </>
+        )}
 
         {/* Newsletter Section */}
         <section className="bg-zinc-50 border border-zinc-200/30 rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-12 text-left">

@@ -13,6 +13,7 @@ import {
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { CreateReviewDto } from './dto/create-review.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -37,6 +38,25 @@ export class ProductsController {
   @Get('admin/all')
   findAllAdmin() {
     return this.productsService.findAllAdmin();
+  }
+
+  /**
+   * PUBLIC: Get reviews for a product
+   * GET /products/:id/reviews
+   */
+  @Get(':id/reviews')
+  getReviews(@Param('id') id: string) {
+    return this.productsService.getReviews(id);
+  }
+
+  /**
+   * PUBLIC: Submit a review for a product
+   * POST /products/:id/reviews
+   */
+  @Post(':id/reviews')
+  @HttpCode(HttpStatus.CREATED)
+  addReview(@Param('id') id: string, @Body() createReviewDto: CreateReviewDto) {
+    return this.productsService.addReview(id, createReviewDto);
   }
 
   /**

@@ -3,6 +3,23 @@ import { HydratedDocument } from 'mongoose';
 
 export type ProductDocument = HydratedDocument<Product>;
 
+@Schema({ _id: false })
+export class Review {
+  @Prop({ required: true, trim: true })
+  name: string;
+
+  @Prop({ required: true, trim: true })
+  comment: string;
+
+  @Prop({ required: true, min: 1, max: 5 })
+  rating: number;
+
+  @Prop({ default: () => new Date() })
+  createdAt: Date;
+}
+
+export const ReviewSchema = SchemaFactory.createForClass(Review);
+
 @Schema({ timestamps: true })
 export class Product {
   @Prop({ required: true, trim: true })
@@ -33,6 +50,11 @@ export class Product {
 
   @Prop({ trim: true, default: 'Casual' })
   wearType: string;
+
+  /** Customer reviews embedded in the product document */
+  @Prop({ type: [ReviewSchema], default: [] })
+  reviews: Review[];
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);
+

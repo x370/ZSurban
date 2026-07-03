@@ -9,6 +9,8 @@ import {
   LocalShipping as ShippingIcon,
   Payment as PaymentIcon,
   Person as PersonIcon,
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
 } from '@mui/icons-material';
 import Button from './Button';
 import Input from './Input';
@@ -25,6 +27,10 @@ export default function OrdersPanel() {
 
   // Detail Modal state
   const [selectedOrder, setSelectedOrder] = useState<AdminOrder | null>(null);
+
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 10;
 
   const loadOrders = async () => {
     try {
@@ -82,6 +88,12 @@ export default function OrdersPanel() {
 
     return matchesSearch && matchesStatus;
   });
+
+  // Reset page when filter/search changes
+  useEffect(() => { setPage(1); }, [searchQuery, statusFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredOrders.length / PAGE_SIZE));
+  const pagedOrders = filteredOrders.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   // Get status class for Order Status
   const getOrderStatusClass = (status: string) => {
@@ -200,7 +212,7 @@ export default function OrdersPanel() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-50 text-xs">
-                {filteredOrders.map((order) => (
+                {pagedOrders.map((order) => (
                   <tr key={order._id} className="hover:bg-zinc-50/50 transition-colors">
                     <td className="px-5 py-4 font-mono font-bold text-zinc-500">
                       #{order._id.substring(order._id.length - 6).toUpperCase()}
@@ -277,6 +289,49 @@ export default function OrdersPanel() {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination Footer */}
+          {filteredOrders.length > PAGE_SIZE && (
+            <div className="flex items-center justify-between px-5 py-3 border-t border-zinc-100 bg-zinc-50/50">
+              <span className="text-[10px] font-bold text-zinc-400">
+                Page <span className="text-zinc-700">{page}</span> of <span className="text-zinc-700">{totalPages}</span>
+                {' '}· <span className="text-zinc-700">{filteredOrders.length}</span> orders
+              </span>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="w-7 h-7 rounded-lg border border-zinc-200 flex items-center justify-center text-zinc-500 hover:bg-zinc-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                >
+                  <ChevronLeftIcon sx={{ fontSize: 16 }} />
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter(n => n === 1 || n === totalPages || Math.abs(n - page) <= 1)
+                  .reduce<(number | '...')[]>((acc, n, idx, arr) => {
+                    if (idx > 0 && typeof arr[idx - 1] === 'number' && (n as number) - (arr[idx - 1] as number) > 1) acc.push('...');
+                    acc.push(n);
+                    return acc;
+                  }, [])
+                  .map((n, i) =>
+                    n === '...' ? (
+                      <span key={`dots-${i}`} className="w-7 h-7 flex items-center justify-center text-[10px] text-zinc-400">…</span>
+                    ) : (
+                      <button key={n} onClick={() => setPage(n as number)}
+                        className={`w-7 h-7 rounded-lg text-[10px] font-black transition-colors cursor-pointer ${
+                          page === n ? 'bg-zinc-900 text-white' : 'border border-zinc-200 text-zinc-500 hover:bg-zinc-100'
+                        }`}>{n}</button>
+                    )
+                  )}
+                <button
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className="w-7 h-7 rounded-lg border border-zinc-200 flex items-center justify-center text-zinc-500 hover:bg-zinc-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                >
+                  <ChevronRightIcon sx={{ fontSize: 16 }} />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
